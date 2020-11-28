@@ -51,7 +51,37 @@ $ curl http://localhost:8018/actuator/prometheus | grep kafka
 
 ## Test locally
 
-Start your Kafka local environment:
+### Start Kafka local environment:
+
+You can choose different alternatives, for example:
+
+* Start downloaded Confluent platform:
+
+```shell script
+$ export CONFLUENT_HOME=~/Downloads/confluent-6.0.0/
+
+$ confluent local services start
+The local commands are intended for a single-node development environment only,
+NOT for production usage. https://docs.confluent.io/current/cli/index.html
+
+Using CONFLUENT_CURRENT: /tmp/confluent.128165
+Starting ZooKeeper
+ZooKeeper is [UP]
+Starting Kafka
+Kafka is [UP]
+Starting Schema Registry
+Schema Registry is [UP]
+Starting Kafka REST
+Kafka REST is [UP]
+Starting Connect
+Connect is [UP]
+Starting ksqlDB Server
+ksqlDB Server is [UP]
+Starting Control Center
+Control Center is [UP]
+```
+
+* Start your Kafka local environment in Docker:
 
 ```shell script
 $ sudo docker-compose -f docker-compose.yml up -d
