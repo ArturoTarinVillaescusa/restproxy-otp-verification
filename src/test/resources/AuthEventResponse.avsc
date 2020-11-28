@@ -1,0 +1,61 @@
+{
+  "doc": "This is a generic event response message for customer registration with authorisation.",
+  "fields": [
+    {
+      "docs": "This id the unique id to correlate request with response.",
+      "name": "correlationId",
+      "type": {
+        "avro.java.string": "String",
+        "type": "string"
+      }
+    },
+    {
+      "doc": "Time when the event was created as milliseconds from the UNIX epoch",
+      "name": "createdAt",
+      "type": "long"
+    },
+    {
+      "doc": "This is the id of thr process generating this message.",
+      "name": "createdBy",
+      "type": {
+        "avro.java.string": "String",
+        "type": "string"
+      }
+    },
+    {
+      "doc": "Response body as json string.",
+      "name": "response",
+      "type": {
+        "avro.java.string": "String",
+        "type": "string"
+      }
+    },
+    {
+      "doc": "Http response code.",
+      "name": "code",
+      "type": {
+        "avro.java.string": "String",
+        "type": "string"
+      }
+    },
+    {
+      "docs": "Tells the otpVerification the reason why Emac Validator sends back a non happy path error message through the otpVerification validator rest proxy",
+      "name": "reason",
+      "type": {
+        "avro.java.string": "String",
+        "type": "string"
+      }
+    },
+    {
+      "doc": "Hmac info returned in the response message to the otpVerification",
+      "name": "hmac",
+      "type": {
+        "avro.java.string": "String",
+        "type": "string"
+      }
+    }
+  ],
+  "name": "AuthEventResponse",
+  "namespace": "com.tsb.ob.restproxy.avro.auth.event",
+  "type": "record"
+}

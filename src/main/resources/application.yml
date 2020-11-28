@@ -1,0 +1,48 @@
+server:
+  port: 8085
+
+kafka:
+  custom:
+    config:
+      sink: com.tsb.ob.restproxy.request
+      source: com.tsb.ob.restproxy.otp.verified.response
+      sink-through: com.tsb.ob.tp.otp.verification.verify.otp
+      bootstrap-server: ${KAFKA_URL}:${KAFKA_PORT}
+      application-id: restproxy-otp-verification
+      schema-registry: ${SCHEMA_REGISTRY}
+      zoo-keeper-server: ${ZOOKEEPER_URL}:${ZOOKEEPER_PORT}
+      sasl-jaas-config: org.apache.kafka.common.security.plain.PlainLoginModule required username=${KAFKA_USER} password=${KAFKA_PASSWORD};
+      sasl-mechanism: PLAIN
+      security-protocol: SASL_SSL
+      ssl-truststore-location: ${KAFKA_TRUSTSTORE_LOCATION}
+      ssl-truststore-password: ${KAFKA_TRUSTSTORE_PASSWORD}
+
+spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+request:
+  expiry:
+    time: ${REST_PROXY_EXPIRY_TIME}
+
+logging:
+  level:
+    com:
+      tsb.onboarding: INFO
+    org:
+      apache.kafka: INFO
+    io:
+      confluent.kafka: INFO
+
+
+endpoints.jmx.enabled: true
+spring.jmx.enabled: true
+
+management:
+  endpoints:
+    jmx.exposure.include: "*"
+    web.exposure.include: "*"
+
+metrics.kafka:
+  consumer.enabled: true
+  producer.enabled: true

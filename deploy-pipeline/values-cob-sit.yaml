@@ -1,0 +1,23 @@
+replicaCount: 1
+
+image:
+  repository: ${ARTIFACTORY_URL}/${PROJECT}/${REPO_NAME}
+  pullPolicy: IfNotPresent
+  tag: ${BUILD_TIME}
+environmentVariables:
+ingress:
+  host:
+  path: /users/.*/phone/verify
+
+service:
+  enabled: true
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8085
+
+createServiceMonitor: true
+prometheusReleaseLabel: mon
+projectNamespaceName: cob-sit
+

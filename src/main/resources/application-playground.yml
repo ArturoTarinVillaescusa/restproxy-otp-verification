@@ -1,0 +1,8 @@
+kafka:
+  custom:
+    config:
+      sink: com.tsb.ob.restproxy.request.playground
+      source: com.tsb.ob.restproxy.otp.verified.response.playground
+      sink-through: com.tsb.ob.tp.otp.verification.verify.otp.playground
+      application-id: restproxy-otp-verification-playground
+      security-protocol: PLAINTEXT

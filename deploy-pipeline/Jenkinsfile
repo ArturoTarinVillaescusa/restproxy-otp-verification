@@ -1,0 +1,5 @@
+def libraryRepo = "https://github.com/TSB-Bank/DevOps-Features.git"
+def repoCredentials = "github_credentials"
+
+library identifier: 'DevOps-Features@develop', retriever: modernSCM([$class: 'GitSCMSource', remote: libraryRepo, credentialsId: repoCredentials ]) _
+deploymentPipeline("cob", "gradle")

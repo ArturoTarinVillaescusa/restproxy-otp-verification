@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tsb-onboarding-restproxy-otp-verification-hpa
+spec:
+  selector:
+    matchLabels:
+      run: tsb-onboarding-restproxy-otp-verification-hpa
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: tsb-onboarding-restproxy-otp-verification-hpa
+    spec:
+      containers:
+        - name: tsb-onboarding-restproxy-otp-verification-hpa
+          image: tsb-onboarding-restproxy-otp-verification
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              cpu: 500m
+            requests:
+              cpu: 200m
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: tsb-onboarding-restproxy-otp-verification-hpa
+  labels:
+    run: tsb-onboarding-restproxy-otp-verification-hpa
+spec:
+  ports:
+    - port: 80
+  selector:
+    run: tsb-onboarding-restproxy-otp-verification-hpa
+

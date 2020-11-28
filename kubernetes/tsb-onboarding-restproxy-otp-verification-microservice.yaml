@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tsb-onboarding-restproxy-otp-verification
+  labels:
+    app: tsb-onboarding-restproxy-otp-verification
+spec:
+  selector:
+    matchLabels:
+      app: tsb-onboarding-restproxy-otp-verification
+      tier: restproxy
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: tsb-onboarding-restproxy-otp-verification
+        tier: restproxy
+    spec:
+      containers:
+      - name: tsb-onboarding-restproxy-otp-verification
+        image: tsb-onboarding-restproxy-otp-verification:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+          # Using `GET_HOSTS_FROM=dns` requires your cluster to
+          # provide a dns service. As of Kubernetes 1.3, DNS is a built-in
+          # service launched automatically. However, if the cluster you are using
+          # does not have a built-in DNS service, you can instead
+          # access an environment variable to find the master
+          # service's host. To do so, comment out the 'value: dns' line above, and
+          # uncomment the line below:
+          # value: env
+        ports:
+        - containerPort: 8085
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tsb-onboarding-restproxy-otp-verification
+  labels:
+    app: tsb-onboarding-restproxy-otp-verification
+    tier: restproxy
+spec:
+  # comment or delete the following line if you want to use a LoadBalancer
+  #type: NodePort
+  # if your cluster supports it, uncomment the following to automatically create
+  # an external load-balanced IP for the frontend service.
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: tsb-onboarding-restproxy-otp-verification
+    tier: restproxy

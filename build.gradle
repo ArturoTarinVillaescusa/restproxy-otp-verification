@@ -1,0 +1,146 @@
+plugins {
+    id 'java'
+    id "maven-publish"
+    id 'org.springframework.boot' version "2.2.4.RELEASE"
+}
+
+group 'com.tsb.restproxy.user.persistence'
+version '1.0'
+
+compileJava {
+    sourceCompatibility = 11
+    targetCompatibility = 11
+}
+
+def env = System.getenv("BUILD_PROFILE")
+if(env == null) {
+    println "> Build profile: local"
+    repositories {
+        mavenCentral()
+        mavenLocal()
+        maven {
+            url = 'https://repo.spring.io/libs-milestone'
+        }
+
+        maven {
+            url = 'https://packages.confluent.io/maven/'
+        }
+
+        maven {
+            url = 'http://repo.maven.apache.org/maven2'
+        }
+    }
+}else{
+    println "> Build profile: $env"
+    apply plugin: 'maven-publish'
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+            }
+        }
+        repositories {
+            maven {
+                url "artifactoryContextUrl/cob-release-local"
+                credentials {
+                    username "artiUser"
+                    password "artiPass"
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "artifactoryContextUrl/cob-maven-libs-release"
+            credentials {
+                username "artiUser"
+                password "artiPass"
+            }
+        }
+        maven {
+            url = 'https://repo.spring.io/libs-milestone'
+        }
+
+        maven {
+            url = 'https://packages.confluent.io/maven/'
+        }
+
+        maven {
+            url = 'http://repo.maven.apache.org/maven2'
+        }
+    }
+}
+
+ext {
+    gson = '2.8.6'
+    junit = '4.12'
+    slf4j = '1.7.30'
+    log4jcore = '2.13.0'
+    torrentNetworkClient = '0.1.0'
+    obAvroSchema = "2.0"
+    lombokVersion = "1.18.12"
+    confluentVersion = "5.4.0"
+    swaggerVersion = "2.9.2"
+    kafkaStreamsVersion = "2.4.0"
+    springVersion = "2.2.5.RELEASE"
+    prometheusVersion = "1.5.2"
+}
+
+configurations {
+    compile.exclude module: "spring-boot-starter-tomcat"
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+}
+
+dependencies {
+    //spring boot
+    implementation "org.springframework.boot:spring-boot-starter-web:$springVersion"
+    implementation "org.springframework.boot:spring-boot-starter-jetty:$springVersion"
+    implementation "org.apache.kafka:kafka-streams:$kafkaStreamsVersion"
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version: "$springVersion"
+
+    // Prometheus monitoring
+    compile group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: "$prometheusVersion"
+
+    //Logging
+    compile group: 'org.slf4j', name: 'slf4j-api', version: "$slf4j"
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: "$log4jcore"
+    compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: "$log4jcore"
+
+    compileOnly "org.projectlombok:lombok:$lombokVersion"
+
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    testCompileOnly "org.projectlombok:lombok:$lombokVersion"
+
+    testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
+
+    //avro
+    compile group: 'com.tsb', name: 'tsb-onboarding-avro-schema', version: "$obAvroSchema"
+    compile group: 'com.tsb.restproxy', name: 'tsb-onboarding-restproxy-commons', version: "0.1.0"
+    compile group: 'io.confluent', name: 'kafka-streams-avro-serde', version: "$confluentVersion"
+
+    // Swagger
+    compile group: 'io.springfox', name: 'springfox-swagger2', version: "$swaggerVersion"
+    compile group: 'io.springfox', name: 'springfox-swagger-ui', version: "$swaggerVersion"
+
+    //Test dependencies
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springVersion"
+    testImplementation "org.apache.kafka:kafka-streams-test-utils:$kafkaStreamsVersion"
+    testCompile group: 'junit', name: 'junit', version: "$junit"
+    testCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.0'
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+

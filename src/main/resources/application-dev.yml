@@ -1,0 +1,11 @@
+kafka:
+  custom:
+    config:
+      security-protocol: PLAINTEXT
+      application-id: restproxy-otp-verification-1
+      sink-through: com.tsb.ob.tp.otp.verification.verify.otp.1
+
+logging:
+  level:
+    com:
+      tsb.onboarding: DEBUG
