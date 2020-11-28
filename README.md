@@ -1,12 +1,12 @@
-# tsb-onboarding-restproxy-otp-verification
+# restproxy-otp-verification
 
 ## Description: 
-The tsb-onboarding-restproxy-otp-verification is a micro-service that runs as a Spring Boot application.
+The restproxy-otp-verification is a micro-service that runs as a Spring Boot application.
 
 It exposes an endpoint that collect all the requests coming from customer's mobile apps, and it is used
 for registering customer device. A few tasks will be handled by this micro-service:
 
-1) End point definition based on swagger specification stored in the [tsb-rest-api-specs](https://github.com/TSB-Bank/tsb-rest-api-specs) project: 
+1) End point definition based on swagger specification stored in the  `rest-api-specs`project: 
 
 ![Alt text](images/swaggereditor.png "Swagger Editor")
 
@@ -20,18 +20,12 @@ That's the diagram of what we want to achieve:
 
 ![Alt text](images/diagram.png "Diagram")
 
-## Jira:
-
-[SCO-800 [BE] Rest Proxy component OtpVerification](https://tsbchange.atlassian.net/browse/SCO-800)
-
 ## Technologies: 
 * Java 11 version
 * Kafka 1.0.1
 * Spring Boot
 
 ## /actuator/prometheus endpoint enabled
-
-Related Jira: [SCO-2355, Kafka Monitoring Process](https://tsbchange.atlassian.net/browse/SCO-2355)
 
 Prometheus server will be polling our microservice's endpoint every n seconds in order to collect our metrics and put them
 in the Grafana Kafka dashboards:
@@ -80,7 +74,7 @@ zookeeper                                            /etc/confluent/docker/run  
 Create the topology topics as seen in the application.yml configuration file, i.e:
 
 * sink: com.tsb.ob.restproxy.request.dev
-  *Note*: this topic name must match with the input topic of the "tsb-onboarding-otp-verification" project
+  *Note*: this topic name must match with the input topic of the "otp-verification" project
 
 ```shell script
 $ ~/Downloads/confluent-5.1.0/bin/kafka-topics --create \
@@ -89,7 +83,7 @@ $ ~/Downloads/confluent-5.1.0/bin/kafka-topics --create \
 ```
   
 * source: com.tsb.ob.restproxy.otp.verified.response.dev
-  *Note*: this topic name must match with the output topic of the "tsb-onboarding-otp-verification" project
+  *Note*: this topic name must match with the output topic of the "otp-verification" project
 
 ```shell script
 $ ~/Downloads/confluent-5.1.0/bin/kafka-topics --create \
@@ -107,7 +101,7 @@ Alternatively, you can start the application using Java:
 
 ```shell script
 
-$ java -jar build/libs/tsb-onboarding-restproxy-otp-verification-1.0.jar \
+$ java -jar build/libs/restproxy-otp-verification-1.0.jar \
             --spring.config.name=src/main/resources/application-dev.yml \
             --spring.config.location=src/main/resources/application-dev.yml 
 
@@ -119,7 +113,7 @@ $ java -jar build/libs/tsb-onboarding-restproxy-otp-verification-1.0.jar \
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::        (v2.2.5.RELEASE)
 
-2020-03-20 06:44:27,196 INFO  [main] boot.StartupInfoLogger (StartupInfoLogger.java:55) - Starting OtpVerificationRestProxyApp on QOSMIO-X70B with PID 23159 (/home/arturotarin/Documents/2020-03-11_TSB/TSBGitHubRepo/tsb-onboarding-restproxy-otp-verification/build/classes/java/main started by arturotarin in /home/arturotarin/Documents/2020-03-11_TSB/TSBGitHubRepo/tsb-onboarding-restproxy-otp-verification)
+2020-03-20 06:44:27,196 INFO  [main] boot.StartupInfoLogger (StartupInfoLogger.java:55) - Starting OtpVerificationRestProxyApp on QOSMIO-X70B with PID 23159 (/home/arturotarin/Documents/2020-03-11_TSB/TSBGitHubRepo/restproxy-otp-verification/build/classes/java/main started by arturotarin in /home/arturotarin/Documents/2020-03-11_TSB/TSBGitHubRepo/restproxy-otp-verification)
 2020-03-20 06:44:29,387 INFO  [restproxy-otp-verification-00a606ca-df07-404c-8b72-c6fbf0a5a938-StreamThread-1] utils.LogContext$KafkaLogger (LogContext.java:351) - stream-thread [restproxy-otp-verification-00a606ca-df07-404c-8b72-c6fbf0a5a938-StreamThread-1] partition assignment took 1 ms.
         current active tasks: []
         current standby tasks: []
@@ -154,33 +148,32 @@ $ docker exec -it broker kafka-console-consumer   \
 24f28af6-a609-40b0-9632-ee4e93301b7b�����\8restproxy-otp-verification-1�{"otp":"234567","xAuthorizationHMAC":"1234","userId":"userid1234"}Xcom.tsb.ob.restproxy.otp.verified.response.devuserid1231234
 ```
 
-As seen in the first diagram, after the [tsb-onboarding-restproxy-otp-verification](https://github.com/TSB-Bank/tsb-onboarding-restproxy-otp-verification/tree/SCO-800)
- microservice publishes a message in the com.tsb.ob.restproxy.request.dev topic, the next step in
-  a real production environment would be in hands of the [tsb-onboarding-hmac-validator](https://github.com/TSB-Bank/tsb-onboarding-hmac-validator)
+As seen in the first diagram, after the `restproxy-otp-verification` microservice publishes a message in the com.tsb.ob.restproxy.request.dev topic, the next step in
+  a real production environment would be in hands of the `hmac-validator`
  microservice, who eventually will be picking up the message from this topic, then evaluating the Hmac
  value contained in the "hmac" field within the message, and then either inserting a 422 error message
 in the com.tsb.ob.restproxy.otp.verified.response.dev topic in case the Hmac is not valid, or moving forward the
-process to the tsb-onboarding-otp-verification in case the Hmac is valid.
+process to the otp-verification in case the Hmac is valid.
 
-But we are in the test environment, and running the tsb-onboarding-hmac-validator and the tsb-onboarding-otp-verification
-microservices all together with this [tsb-onboarding-otp-verification](https://github.com/TSB-Bank/tsb-onboarding-otp-verification/tree/SCO-800)
+But we are in the test environment, and running the hmac-validator and the otp-verification
+microservices all together with this `otp-verification`
  microservice that we want to test, plus the full docker Kafka environment, is highly system resources consuming.
 
-[tsb-onboarding-avro-schema](https://github.com/TSB-Bank/tsb-onboarding-avro-schema/tree/SCO-800)
+`avro-schema` is the project to manage the Avro messages published in the topic.
 
 Having said that, we can do a workaround to surpass this limitation, which basically is manually publishing
 fake messages in the com.tsb.ob.restproxy.otp.verified.response.dev topic using the kafka-avro-console-producer
 command line, in order to simulate the full end-to-end test cycle. The provided schema would be as seen
-in the [AuthEventResponse.avsc](https://github.com/TSB-Bank/tsb-onboarding-avro-schema/blob/SCO-800/src/main/avro/com.tsb.ob.restproxy.avro.auth.event/AuthEventResponse.avsc)
- Avro schema created in the [tsb-onboarding-avro-schema](https://github.com/TSB-Bank/tsb-onboarding-avro-schema/tree/SCO-800) project.
+in the `AuthEventResponse.avsc`
+ Avro schema created in the `avro-schema' project.
  
-Running this command would be as if the tsb-onboarding-otp-verification microservice returned a 200 OK response:
+Running this command would be as if the otp-verification microservice returned a 200 OK response:
  
  ```shell script
  $ cat src/test/resources/AuthEventResponse_200.json | ~/Downloads/confluent-5.1.0/bin/kafka-avro-console-producer         --broker-list localhost:9092 --topic com.tsb.ob.tp.validation.passed     --property schema.registry.url=http://127.0.0.1:8081     --property value.schema="$(cat src/test/resources/AuthEventResponse.avsc)"
  ``` 
 
-Running this command would be as if the tsb-onboarding-otp-verification microservice returned a 422 UNPROCESSABLE_ENTITY response:
+Running this command would be as if the otp-verification microservice returned a 422 UNPROCESSABLE_ENTITY response:
 
  ```shell script
  $ cat src/test/resources/AuthEventResponse_422.json | ~/Downloads/confluent-5.1.0/bin/kafka-avro-console-producer         --broker-list localhost:9092 --topic com.tsb.ob.tp.validation.passed     --property schema.registry.url=http://127.0.0.1:8081     --property value.schema="$(cat src/test/resources/AuthEventResponse.avsc)"
@@ -191,11 +184,11 @@ Running this command would be as if the tsb-onboarding-otp-verification microser
 ### Creating a Docker container image with the resulting jar application
 
 ```shell script
-$ sudo docker build -t tsb-onboarding-restproxy-otp-verification .
+$ sudo docker build -t restproxy-otp-verification .
 Sending build context to Docker daemon  75.17MB
 Step 1/9 : FROM openjdk:11.0.2-jre-slim AS builder
  ---> b7a931ed7d37
-Step 2/9 : ENV ARTIFACT_NAME tsb-onboarding-restproxy-otp-verification-1.0.jar
+Step 2/9 : ENV ARTIFACT_NAME restproxy-otp-verification-1.0.jar
  ---> Running in c28e8e919de5
  ---> 8c0717918c11
 Removing intermediate container c28e8e919de5
@@ -226,11 +219,11 @@ Step 9/9 : CMD java -jar $ARTIFACT_NAME
  ---> 307f1bc170b0
 Removing intermediate container 5955b643f91a
 Successfully built 307f1bc170b0
-Successfully tagged tsb-onboarding-restproxy-otp-verification:latest
+Successfully tagged restproxy-otp-verification:latest
 
 $ docker images
 REPOSITORY                                              TAG                 IMAGE ID            CREATED             SIZE
-tsb-onboarding-restproxy-otp-verification                 latest              8674e67adedb        30 seconds ago      578MB
+restproxy-otp-verification                 latest              8674e67adedb        30 seconds ago      578MB
 ```
 
 ### Running a Docker container based in the image
@@ -238,7 +231,7 @@ tsb-onboarding-restproxy-otp-verification                 latest              86
 Create a new container:
 
 ```shell script
-$ docker run -d --network=confluent-network -p 8085:8085 --name tsb-onboarding-restproxy-otp-verification tsb-onboarding-restproxy-otp-verification:latest
+$ docker run -d --network=confluent-network -p 8085:8085 --name restproxy-otp-verification restproxy-otp-verification:latest
 35e213f52f2b005cd9ca7ef8e4ea3166f99db3c40b0a7918d51d8cf7433eb82b
 ```
 
@@ -247,13 +240,13 @@ Check the container status:
 ```shell script
 $ docker ps
 CONTAINER ID        IMAGE                                            COMMAND                  CREATED             STATUS              PORTS                    NAMES
-35e213f52f2b        tsb-onboarding-restproxy-otp-verification:latest   "java -jar tsb-onb..."   17 seconds ago      Up 12 seconds       0.0.0.0:8085->8085/tcp   tsb-onboarding-restproxy-otp-verification
+35e213f52f2b        restproxy-otp-verification:latest   "java -jar onb..."   17 seconds ago      Up 12 seconds       0.0.0.0:8085->8085/tcp   restproxy-otp-verification
 ```
 
 See the container logs:
 
 ```shell script
-$ docker logs -f tsb-onboarding-restproxy-otp-verification
+$ docker logs -f restproxy-otp-verification
 
 2020-03-17 08:15:12,625 INFO  [restproxy-otp-verification-43ec16ba-e353-414b-b433-8f464b8c1d6b-StreamThread-1] utils.LogContext$KafkaLogger (LogContext.java:346) - stream-client [restproxy-otp-verification-43ec16ba-e353-414b-b433-8f464b8c1d6b]State transition from REBALANCING to RUNNING
 ```
@@ -261,20 +254,20 @@ $ docker logs -f tsb-onboarding-restproxy-otp-verification
 Stop the container:
 
 ```shell script
-$ docker stop tsb-onboarding-restproxy-otp-verification
-tsb-onboarding-restproxy-otp-verification
+$ docker stop restproxy-otp-verification
+restproxy-otp-verification
 ```
 
 Start the container:
 
 ```shell script
-$ docker start tsb-onboarding-restproxy-otp-verification
-tsb-onboarding-restproxy-otp-verification
+$ docker start restproxy-otp-verification
+restproxy-otp-verification
 ```
 
 ```shell script
-$ docker-compose up -d tsb-onboarding-restproxy-otp-verification
-Recreating tsbonboardingrestproxyotpverification_tsb-onboarding-restproxy-otp-verification_1 ... done
+$ docker-compose up -d restproxy-otp-verification
+Recreating restproxyotpverification_restproxy-otp-verification_1 ... done
 ```
 
 ## Deploying the application in a local Kubernetes (Minikube)
@@ -1102,7 +1095,7 @@ Replace the content of the cp-helm-charts/values.yaml with the content of the
 kubernetes/helm/cp-helm-chart-values.yaml provided in this project.
 
 ```shell script
-$ cp tsb-onboarding-restproxy-otp-verification/kubernetes/helm/cp-helm-chart-values.yaml cp-helm-charts/values.yaml
+$ cp restproxy-otp-verification/kubernetes/helm/cp-helm-chart-values.yaml cp-helm-charts/values.yaml
 ```
 
 Then, proceed to install the platform:
@@ -1338,7 +1331,7 @@ spec:
 **We have a Kafka cluster and Schema Registry up and running in Minikube!**
 
 
-### Deploying the tsb-onboarding-restproxy-otp-application in your local Kubernetes environment
+### Deploying the restproxy-otp-application in your local Kubernetes environment
 
 Open a session with your local Minikube environment:
 
@@ -1366,7 +1359,7 @@ Generate an image of the process in the Minikube Docker repository:
 
 ```shell script
 $ cd kubernetes
-kubernetes~$ docker build -t tsb-onboarding-restproxy-otp-verification .
+kubernetes~$ docker build -t restproxy-otp-verification .
 Sending build context to Docker daemon  80.38MB
 Step 1/9 : FROM openjdk:11.0.2-jre-slim
  ---> b7a931ed7d37
@@ -1378,7 +1371,7 @@ Step 3/9 : WORKDIR /
  ---> Running in 7e00e65d1158
 Removing intermediate container 7e00e65d1158
  ---> 3227f703684f
-Step 4/9 : COPY build/libs/tsb-onboarding-restproxy-otp-verification-1.0.jar /
+Step 4/9 : COPY build/libs/restproxy-otp-verification-1.0.jar /
  ---> c0c34de0a439
 Step 5/9 : COPY src/main/resources/application-minikube.yml /
  ---> 36b05aff9558
@@ -1394,17 +1387,17 @@ Step 8/9 : ENV WORKER_ENABLED=true
  ---> Running in f1cb47f36a50
 Removing intermediate container f1cb47f36a50
  ---> 252db352cfa3
-Step 9/9 : CMD ["java","-jar", "/tsb-onboarding-restproxy-otp-verification-1.0.jar", "--spring.config.name=/application-minikube.yml", "--spring.config.location=/application-minikube.yml"]
+Step 9/9 : CMD ["java","-jar", "/restproxy-otp-verification-1.0.jar", "--spring.config.name=/application-minikube.yml", "--spring.config.location=/application-minikube.yml"]
  ---> Running in d62d0e007144
 Removing intermediate container d62d0e007144
  ---> 538f9bf22a27
 Successfully built 538f9bf22a27
-Successfully tagged tsb-onboarding-restproxy-otp-verification:latest
+Successfully tagged restproxy-otp-verification:latest
 
 
 kubernetes~$ docker images
 REPOSITORY                                TAG                 IMAGE ID            CREATED             SIZE
-tsb-onboarding-restproxy-otp-verification   latest              2b2c27b2117a        5 minutes ago       637MB
+restproxy-otp-verification   latest              2b2c27b2117a        5 minutes ago       637MB
 bitnami/kafka                             latest              57556e509128        25 hours ago        567MB
 k8s.gcr.io/kube-proxy                     v1.17.3             ae853e93800d        5 weeks ago         116MB
 k8s.gcr.io/kube-apiserver                 v1.17.3             90d27391b780        5 weeks ago         171MB
@@ -1420,15 +1413,15 @@ gcr.io/k8s-minikube/storage-provisioner   v1.8.1              4689081edb10      
 ```
 
 ```shell script
-kubernetes~$ kubectl create -f kubernetes/tsb-onboarding-restproxy-otp-verification-microservice.yaml
-deployment.apps/tsb-onboarding-restproxy-otp-verification created
-service/tsb-onboarding-restproxy-otp-verification created
+kubernetes~$ kubectl create -f kubernetes/restproxy-otp-verification-microservice.yaml
+deployment.apps/restproxy-otp-verification created
+service/restproxy-otp-verification created
 
 kubernetes~$ kubectl get deployments
 NAME                                                   READY   UP-TO-DATE   AVAILABLE   AGE
-tsb-onboarding-restproxy-otp-verification-microservice   0/3     3            0           61s
+restproxy-otp-verification-microservice   0/3     3            0           61s
 
-$ kubectl logs --tail=10000 -lapp=tsb-onboarding-restproxy-otp-verification
+$ kubectl logs --tail=10000 -lapp=restproxy-otp-verification
    /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
   ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
    \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
@@ -1436,7 +1429,7 @@ $ kubectl logs --tail=10000 -lapp=tsb-onboarding-restproxy-otp-verification
    =========|_|==============|___/=/_/_/_/
    :: Spring Boot ::        (v2.2.5.RELEASE)
   
-  2020-03-30 18:13:47,925 INFO  [main] boot.StartupInfoLogger (StartupInfoLogger.java:55) - Starting OtpVerificationRestProxyApp on tsb-onboarding-restproxy-otp-verification-764b989ffc-wxcnm with PID 1 (/tsb-onboarding-restproxy-otp-verification-1.0.jar started by root in /)
+  2020-03-30 18:13:47,925 INFO  [main] boot.StartupInfoLogger (StartupInfoLogger.java:55) - Starting OtpVerificationRestProxyApp on restproxy-otp-verification-764b989ffc-wxcnm with PID 1 (/restproxy-otp-verification-1.0.jar started by root in /)
   2020-03-30 18:13:47,977 INFO  [main] boot.SpringApplication (SpringApplication.java:651) - No active profile set, falling back to default profiles: default
   2020-03-30 18:13:54,429 INFO  [main] log.Log (Log.java:169) - Logging initialized @24975ms to org.eclipse.jetty.util.log.Slf4jLog
   2020-03-30 18:13:55,073 INFO  [main] jetty.JettyServletWebServerFactory (JettyServletWebServerFactory.java:145) - Server initialized with port: 8085
@@ -1446,7 +1439,7 @@ $ kubectl logs --tail=10000 -lapp=tsb-onboarding-restproxy-otp-verification
   2020-03-30 18:13:57,666 INFO  [main] session.DefaultSessionIdManager (DefaultSessionIdManager.java:333) - DefaultSessionIdManager workerName=node0
   2020-03-30 18:13:57,669 INFO  [main] session.DefaultSessionIdManager (DefaultSessionIdManager.java:338) - No SessionScavenger set, using defaults
   2020-03-30 18:13:57,674 INFO  [main] session.HouseKeeper (HouseKeeper.java:140) - node0 Scavenging every 600000ms
-  2020-03-30 18:13:57,721 INFO  [main] handler.ContextHandler (ContextHandler.java:825) - Started o.s.b.w.e.j.JettyEmbeddedWebAppContext@2cf92cc7{application,/,[file:///tmp/jetty-docbase.13677236387137470202.8085/, jar:file:/tsb-onboarding-restproxy-otp-verification-1.0.jar!/BOOT-INF/lib/springfox-swagger-ui-2.9.2.jar!/META-INF/resources],AVAILABLE}
+  2020-03-30 18:13:57,721 INFO  [main] handler.ContextHandler (ContextHandler.java:825) - Started o.s.b.w.e.j.JettyEmbeddedWebAppContext@2cf92cc7{application,/,[file:///tmp/jetty-docbase.13677236387137470202.8085/, jar:file:/restproxy-otp-verification-1.0.jar!/BOOT-INF/lib/springfox-swagger-ui-2.9.2.jar!/META-INF/resources],AVAILABLE}
   2020-03-30 18:13:57,729 INFO  [main] server.Server (Server.java:399) - Started @28279ms
   2020-03-30 18:13:58,445 INFO  [main] config.AbstractConfig (AbstractConfig.java:238) - ProducerConfig values: 
   	acks = 1
@@ -1807,16 +1800,16 @@ my-kafka                                    ClusterIP      10.104.144.54   <none
 my-kafka-headless                           ClusterIP      None            <none>        9092/TCP                     42m
 my-kafka-zookeeper                          ClusterIP      10.99.241.119   <none>        2181/TCP                     42m
 my-kafka-zookeeper-headless                 ClusterIP      None            <none>        2181/TCP,3888/TCP,2888/TCP   42m
-tsb-onboarding-restproxy-otp-verification   LoadBalancer   10.97.46.40     <pending>     80:32492/TCP                 2m15s
+restproxy-otp-verification   LoadBalancer   10.97.46.40     <pending>     80:32492/TCP                 2m15s
 ```
 
 By the means of HPA, we can make Kubernetes to autoscale our application based in the
 the memory and CPU consumption average. Let's do this in in our example with:
 
 ```shell script
-$ kubectl create -f kubernetes/tsb-onboarding-restproxy-otp-verification-microservice-hpa.yaml 
-deployment.apps/tsb-onboarding-restproxy-otp-verification-hpa created
-service/tsb-onboarding-restproxy-otp-verification-hpa created
+$ kubectl create -f kubernetes/restproxy-otp-verification-microservice-hpa.yaml 
+deployment.apps/restproxy-otp-verification-hpa created
+service/restproxy-otp-verification-hpa created
 ```
 
 Now we have a new service:
@@ -1829,8 +1822,8 @@ my-kafka                                        ClusterIP      10.104.144.54   <
 my-kafka-headless                               ClusterIP      None            <none>        9092/TCP                     53m
 my-kafka-zookeeper                              ClusterIP      10.99.241.119   <none>        2181/TCP                     53m
 my-kafka-zookeeper-headless                     ClusterIP      None            <none>        2181/TCP,3888/TCP,2888/TCP   53m
-tsb-onboarding-restproxy-otp-verification       LoadBalancer   10.97.46.40     <pending>     80:32492/TCP                 13m
-tsb-onboarding-restproxy-otp-verification-hpa   ClusterIP      10.109.83.101   <none>        80/TCP                       43s
+restproxy-otp-verification       LoadBalancer   10.97.46.40     <pending>     80:32492/TCP                 13m
+restproxy-otp-verification-hpa   ClusterIP      10.109.83.101   <none>        80/TCP                       43s
 ```
 
 Here's the IP to access to the deployment:
@@ -1878,7 +1871,7 @@ $ kubectl exec -ti testclient bash
 root@testclient:/# curl -s -X POST -H "Content-Type: application/json"    \
                                      header "X-Authorization-HMAC: 1234"   \
                                      --data '{"otp": "234567"}' \
-           http://tsb-onboarding-restproxy-otp-verification-764b989ffc-g2jdq:8085/users/userid1234/phone/verify 
+           http://restproxy-otp-verification-764b989ffc-g2jdq:8085/users/userid1234/phone/verify 
 ```
 Next, consume the the messages that the microservice has produced in the request topic:
 
